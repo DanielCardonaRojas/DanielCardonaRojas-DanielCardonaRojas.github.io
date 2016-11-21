@@ -71,6 +71,7 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
     <link rel="stylesheet" href="../static/css/bootstrap.min.css">
     <link rel="stylesheet" href="../static/css/spaceg.stylesheets.css">
     <link rel="stylesheet" href="../static/css/syntax.css">
+    <link rel="stylesheet" href="../static/css/custom.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/styles/default.min.css">
 
     <!-- Fonts -->
@@ -167,7 +168,7 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
                                 <a href="https://www.twitter.com/katychuang" target="_blank">follow me</a>. <br> 
                                 <a href="https://www.github.com/katychuang" target="_blank">    <i class="fa fa-github" id="spaceg-social-modal"></i> </a> 
                                 <a href="https://www.twitter.com/katychuang" target="_blank"><i class="fa fa-twitter" id="spaceg-social-modal"></i> </a>    
-                                <a href="https://plus.google.com/u/0/111391719267336703432/posts" target="_blank"> <i class="fa fa-google-plus" id="spaceg-social-modal"></i></a> 
+                                <a href="https://plus.google.com/u/0/114379033449724089135" target="_blank"> <i class="fa fa-google-plus" id="spaceg-social-modal"></i></a> 
                             </p>
                             <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
                         </div>
@@ -236,9 +237,9 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
 
-			<p>It seems a bit hard to get Hakyll setup for github pages and like most other blogs made with Hakyll one the first posts is about how to set it up.</p>
-<p>Working with hakyll is pretty easy. What is a little confising is how to get git and github setup.</p>
-<p>The challange is to setup a repo with two independent branches, the master branch will containt all of your html generated files as well as javascripts, css and images. Another branch (in this case named source) will have the haskell source and templates for generating the html. So we’ll want to automate this with deployment script that will switch to the right branch, push the right content etc.</p>
+			<p>It seems a bit hard to get Hakyll setup for github pages and like most other blogs made with Hakyll one of the first posts is about how to set it up.</p>
+<p>Working with hakyll is pretty easy. What is a little confusing is how to get git and github setup.</p>
+<p>The challange is to setup a remote repository in github with two independent branches, the master branch will containt all of your html generated files as well as javascripts, css and images. Another branch (in this case named source) will have the haskell source and templates for generating the html. So we’ll want to automate this with deployment script that will switch to the right branch, push the right content etc.</p>
 <p>There are many tutorials teaching how to get started and setup git the one that worked for me was <a href="http://jameslawson.github.io/posts/2015-02-23-hakyll-and-github-pages.html">this</a>, the first link below.</p>
 <ul>
 <li><a href="http://jameslawson.github.io/posts/2015-02-23-hakyll-and-github-pages.html">jameslawson</a></li>
@@ -253,12 +254,12 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
 <p>Build and get live automatically updated preview of your site:</p>
 <pre class="shell"><code>stack build 
 stack exec &lt;blogName&gt; watch</code></pre>
-<p>You can just regenerate generate all html by issuing:</p>
+<p>You can just regenerate all html by issuing:</p>
 <pre class="shell"><code>stack rebuild
 # Or 
 stack clean &amp;&amp; stack build</code></pre>
 <h1 id="design-your-blog">Design your blog</h1>
-<p>Write a post and get a hang of how thing work with Hakyll, see how it gets render automatically with the <code>watch</code> command play with the frontmatter options.</p>
+<p>Write a post and get a hang of how things work in Hakyll, see how it gets render automatically with the <code>watch</code> command play with the frontmatter options.</p>
 <p>In this blog I used a template taken from: <a href="https://github.com/katychuang/hakyll-cssgarden">hakyll-cssgarden</a>. Clone and copy the templates, site.hs and static folder. I prefer its folder structure than the one the default template has.</p>
 <h1 id="gitgithub-setup">Git/Github setup</h1>
 <p>If your new to github pages like I was, to setup a github page youll have to create a repository with the following name:</p>
@@ -267,10 +268,43 @@ stack clean &amp;&amp; stack build</code></pre>
 </blockquote>
 <p><strong>Setup SSH key</strong></p>
 <p>Setting up an ssh key is important so you dont get prompted with a user and password every time how push a commit.</p>
+<p>Follow <a href="https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/">this</a> guide to se the detailed process.</p>
+<p><strong>Create a .gitignore file </strong></p>
+<p>This should have something like this:</p>
+<div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml">.stack-work/
+site
+_site
+_cache
+deploy
+.DS_STORE
+.ghci</code></pre></div>
+<p><strong>Create the source branch</strong></p>
+<p>This is only done the first time. Create a source branch and do an initial commit:</p>
+<pre class="shell"><code>git init
+#git add the origin
+git remote add origin git@github.com:yourGithubName/yourGithubName.github.io.git
+#Create and switch to source branch
+git checkout -b source
+#Make sure that ignored files dont get tracked
+git status
+# If ok add all files.
+git add -A
+git commit -m &quot;First source commit&quot;
+git push origin source</code></pre>
+<h1 id="edit-the-deploy-script">Edit the deploy script</h1>
+<p>Copy the deploy.sh script from <a href="https://github.com/DanielCardonaRojas/DanielCardonaRojas.github.io/blob/source/deploy.sh">here</a> this is a slightly modified version of the script from the first tutorial listed above. I just modfied it to use the stack command instead of ghc.</p>
+<ol style="list-style-type: decimal">
+<li>Change <code>REMOTE=&quot;git@github.com:DanielCardonaRojas/DanielCardonaRojas.github.io.git&quot;</code> to match your own github page.</li>
+<li>Edit this line <code>stack exec decarojBlog rebuild</code> to match the name of your the stack genereted binary, which can be changed from the blogName.cabal</li>
+</ol>
+<p>After modifying the script do this the first time:</p>
+<pre class="shell"><code>chmod 700 deploy.sh
+./deploy setup</code></pre>
 <h1 id="workflow">Workflow</h1>
-<p>Write a blog push it to your master branch doing: <code>./deploy.sh deploy</code></p>
+<p>Write a blog push it to your master branch doing: <code>./deploy.sh deploy</code>. This can be done if your in the source or master branch.</p>
 <p>Updated your source</p>
-<h1 id="extras">Extras</h1>	
+<h1 id="extras">Extras</h1>
+<p>Add an RSS feed. Add syntax highlighting.</p>	
 
                 <hr>
 
