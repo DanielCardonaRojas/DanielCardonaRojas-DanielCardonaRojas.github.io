@@ -55,7 +55,7 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
         <!-- Site Desciption --> 
     <meta name="keywords" content="Katy Chuang, katychuang, data science, Web Developer, Front End Engineer">
     <!-- Favicon --> 
-    <link rel="shortcut icon" href="./static/img/ico.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="../static/img/ico.png" type="image/x-icon" />
     <!-- Blog Title -->
     <title>My beautiful blog </title>
 
@@ -68,9 +68,9 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
     <!-- Canonical -->
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
     <!-- StyleSheet -->
-    <link rel="stylesheet" href="./static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="./static/css/spaceg.stylesheets.css">
-    <link rel="stylesheet" href="./static/css/syntax.css">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/spaceg.stylesheets.css">
+    <link rel="stylesheet" href="../static/css/syntax.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/styles/default.min.css">
 
     <!-- Fonts -->
@@ -135,7 +135,7 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
                 </li>
 	           <li><a href="https://instagram.com//" target="_blank"><i class="fa fa-instagram" id="icon-top"></i></a></li>
                 <li><a href="about.html">About</a></li>
-                <li><a href="./contact.html">Contact</a></li>
+                <li><a href="../contact.html">Contact</a></li>
 
                 <li><a href="archive.html">Archive</a></li>
                 <li><a href="https://www.twitter.com/CocolateCardona" id="roundbutton" target="_blank"><i class="fa fa-twitter"></i>Daniel Cardona Rojas</a></li>
@@ -160,7 +160,7 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
                         <div class="modal-body">
                             <h1 class="font-style-inline-small-h1">Lucas Gatsas</h1>
                             <hr class="star-primary">
-                            <img src="./static/img/face.png" class="img-responsive img-centered" alt title>
+                            <img src="../static/img/face.png" class="img-responsive img-centered" alt title>
                             <p class="font-style-inline-small">
                                 Hello, my name is Lucas Gatsas, I'm a Front End Engineer <br>
                                 and Web Developer from Switzerland. This is my Personal Notice and Archive Work Experience Work Blog. My Official Website will be Up soon!  <br>
@@ -196,7 +196,7 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
                         <a href="https://www.github.com/DanielCardonaRojas" target="_blank">    <i class="fa fa-github" id="spaceg-social-modal"></i> </a> 
                         <a href="https://www.twitter.com/CocolateCardona" target="_blank"><i class="fa fa-twitter" id="spaceg-social-modal"></i> </a>    
                         <a href="https://plus.google.com/u/0/111391719267336703432/posts" target="_blank"> <i class="fa fa-google-plus" id="spaceg-social-modal"></i></a>  <br>
-                    <li><a href="./">Home</a></li>
+                    <li><a href="../">Home</a></li>
                     <li><a href="about.html">About Me</a></li>
                     <li><a href="archive.html/">Archive</a></li>
                             </p>
@@ -212,15 +212,19 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
 
 
         <div id="content">
-            
-<!-- Post Header -->
-<header class="intro-header" style="background-image: url('/static/img/beach.jpg')" alt title>
+            <!-- Post Header -->
+<header class="intro-header" style="background-image: url('https://danielcardonarojas.github.io/static/img/beach.jpg')" alt title>
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-		<div class="post-heading">
-                    <h1>Archives</h1>
-		</div>
+                <div class="post-heading">
+                    <h1>Hakyll Configuration for Github Pages</h1>
+                    
+                    <span class="meta">
+		    
+			November 20, 2016
+		    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -232,29 +236,23 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
 
-Here you can find all my previous posts:
-<ul>
-    
-        <li>
-            <a href="./posts/configure_hakyll.html">Hakyll Configuration for Github Pages</a> - November 20, 2016
-        </li>
-    
-        <li>
-            <a href="./posts/haskell_for_the_imperative.html">Haskell for the imperative</a> - October 11, 2016
-        </li>
-    
-        <li>
-            <a href="./posts/generalized_maps.html">More fun with Associated Types</a> - August 11, 2016
-        </li>
-    
-        <li>
-            <a href="./posts/rwst_monad.html">Writing a rwst monad transformer</a> - July  5, 2016
-        </li>
-    
-</ul>
-
+			<p>It seems a bit hard to get Hakyll setup for github pages and like most other blogs made with Hakyll one the first posts is about how to set it up.</p>
+<p>Working with hakyll is pretty easy. What is a little confising is how to get git and github setup. The basic idea is to setup a repo with two branches, the master branch will containt all of your html generated files as well as javascripts, css and images. On another branch we’ll have the haskell source and templates for generating the html.</p>
+<h1 id="stack-setup">stack setup</h1>
+<p>With Hakyll there are two options (cabal and stack), in this tutorial I used a stack template instead.</p>
+<p>Getting started is really easy:</p>
+<pre class="shell"><code>stack new &lt;blogName&gt; hakyll-template</code></pre>
+<h1 id="design-your-blog">Design your blog</h1>
+<h1 id="git-setup">Git setup</h1>
+<h1 id="workflow">Workflow</h1>
+<h1 id="other-tutorials">Other tutorials</h1>	
 
                 <hr>
+
+                <ul class="pager">
+                    
+                    
+                </ul>
 
             </div>
         </div>
@@ -342,11 +340,11 @@ Here you can find all my previous posts:
 </footer>
 
 <!-- jQuery -->
-<script src="./static/js/jquery.min.js"></script>
-<script src="./static/js/spaceg.stylesheets.min.js"></script> 
-<script src="./static/js/bootstrap.min.js"></script>
+<script src="../static/js/jquery.min.js"></script>
+<script src="../static/js/spaceg.stylesheets.min.js"></script> 
+<script src="../static/js/bootstrap.min.js"></script>
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
-<script src="./static/js/scripts.js"></script>
+<script src="../static/js/scripts.js"></script>
 
 <!--<script src="https://danielcardonarojas.github.io/static/js/prism.js"></script>-->
 <!--<script src="https://danielcardonarojas.github.io/static/js/highlight.pack.js"></script>-->
