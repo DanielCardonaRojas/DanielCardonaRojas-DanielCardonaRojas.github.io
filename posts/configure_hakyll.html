@@ -134,10 +134,10 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
                 <ul class="dropdown-menu"></ul>
                 </li>
 	           <li><a href="https://instagram.com//" target="_blank"><i class="fa fa-instagram" id="icon-top"></i></a></li>
-                <li><a href="about.html">About</a></li>
+                <li><a href="../about.html">About</a></li>
                 <li><a href="../contact.html">Contact</a></li>
 
-                <li><a href="archive.html">Archive</a></li>
+                <li><a href="../archive.html">Archive</a></li>
                 <li><a href="https://www.twitter.com/CocolateCardona" id="roundbutton" target="_blank"><i class="fa fa-twitter"></i>Daniel Cardona Rojas</a></li>
             </ul>
         </div>
@@ -237,13 +237,32 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
 
 			<p>It seems a bit hard to get Hakyll setup for github pages and like most other blogs made with Hakyll one the first posts is about how to set it up.</p>
-<p>Working with hakyll is pretty easy. What is a little confising is how to get git and github setup. The basic idea is to setup a repo with two branches, the master branch will containt all of your html generated files as well as javascripts, css and images. On another branch we’ll have the haskell source and templates for generating the html.</p>
+<p>Working with hakyll is pretty easy. What is a little confising is how to get git and github setup.</p>
+<p>The challange is to setup a repo with two independent branches, the master branch will containt all of your html generated files as well as javascripts, css and images. Another branch (in this case named source) will have the haskell source and templates for generating the html. So we’ll want to automate this with deployment script that will switch to the right branch, push the right content etc.</p>
+<p>There are many tutorials teaching how to get started and setup git the one that worked for me was <a href="http://jameslawson.github.io/posts/2015-02-23-hakyll-and-github-pages.html">this</a>, the first link below.</p>
+<ul>
+<li><a href="http://jameslawson.github.io/posts/2015-02-23-hakyll-and-github-pages.html">jameslawson</a></li>
+<li><a href="https://jaspervdj.be/hakyll/tutorials/github-pages-tutorial.html">Official tutorial</a></li>
+</ul>
 <h1 id="stack-setup">stack setup</h1>
 <p>With Hakyll there are two options (cabal and stack), in this tutorial I used a stack template instead.</p>
 <p>Getting started is really easy:</p>
 <pre class="shell"><code>stack new &lt;blogName&gt; hakyll-template</code></pre>
 <h1 id="design-your-blog">Design your blog</h1>
-<h1 id="git-setup">Git setup</h1>
+<p>Build and get live automatically updated preview of your site:</p>
+<pre class="shell"><code>stack build 
+stack exec &lt;blogName&gt; watch</code></pre>
+<p>You can just regenerate generate all html by issuing:</p>
+<pre class="shell"><code>stack rebuild
+# Or 
+stack clean &amp;&amp; stack build</code></pre>
+<h1 id="gitgithub-setup">Git/Github setup</h1>
+<p>If your new to github pages like I was, to setup a github page youll have to create a repository with the following name:</p>
+<blockquote>
+<p><your_github_name>.github.io</p>
+</blockquote>
+<p><strong>Setup SSH key</strong></p>
+<p>Setting up an ssh key is important so you dont get prompted with a user and password every time how push a commit.</p>
 <h1 id="workflow">Workflow</h1>
 <h1 id="other-tutorials">Other tutorials</h1>	
 
