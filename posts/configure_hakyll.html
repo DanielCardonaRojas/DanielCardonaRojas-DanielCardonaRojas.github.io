@@ -244,11 +244,12 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
 <li><a href="http://jameslawson.github.io/posts/2015-02-23-hakyll-and-github-pages.html">jameslawson</a></li>
 <li><a href="https://jaspervdj.be/hakyll/tutorials/github-pages-tutorial.html">Official tutorial</a></li>
 </ul>
+<h1 id="prerequisites">Prerequisites</h1>
+<p>Install stack</p>
 <h1 id="stack-setup">stack setup</h1>
 <p>With Hakyll there are two options (cabal and stack), in this tutorial I used a stack template instead.</p>
 <p>Getting started is really easy:</p>
 <pre class="shell"><code>stack new &lt;blogName&gt; hakyll-template</code></pre>
-<h1 id="design-your-blog">Design your blog</h1>
 <p>Build and get live automatically updated preview of your site:</p>
 <pre class="shell"><code>stack build 
 stack exec &lt;blogName&gt; watch</code></pre>
@@ -256,15 +257,20 @@ stack exec &lt;blogName&gt; watch</code></pre>
 <pre class="shell"><code>stack rebuild
 # Or 
 stack clean &amp;&amp; stack build</code></pre>
+<h1 id="design-your-blog">Design your blog</h1>
+<p>Write a post and get a hang of how thing work with Hakyll, see how it gets render automatically with the <code>watch</code> command play with the frontmatter options.</p>
+<p>In this blog I used a template taken from: <a href="https://github.com/katychuang/hakyll-cssgarden">hakyll-cssgarden</a>. Clone and copy the templates, site.hs and static folder. I prefer its folder structure than the one the default template has.</p>
 <h1 id="gitgithub-setup">Git/Github setup</h1>
 <p>If your new to github pages like I was, to setup a github page youll have to create a repository with the following name:</p>
 <blockquote>
-<p><your_github_name>.github.io</p>
+<p>your_github_name.github.io</p>
 </blockquote>
 <p><strong>Setup SSH key</strong></p>
 <p>Setting up an ssh key is important so you dont get prompted with a user and password every time how push a commit.</p>
 <h1 id="workflow">Workflow</h1>
-<h1 id="other-tutorials">Other tutorials</h1>	
+<p>Write a blog push it to your master branch doing: <code>./deploy.sh deploy</code></p>
+<p>Updated your source</p>
+<h1 id="extras">Extras</h1>	
 
                 <hr>
 
