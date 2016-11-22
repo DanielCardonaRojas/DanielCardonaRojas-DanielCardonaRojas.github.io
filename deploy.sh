@@ -87,4 +87,3 @@ case "$1" in
   * )
     printf "USAGE: test.sh [setup | deploy]\n";;
 esac
-Contact GitHub 
