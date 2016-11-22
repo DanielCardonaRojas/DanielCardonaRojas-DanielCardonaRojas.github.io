@@ -117,8 +117,15 @@ chmod 700 deploy.sh
 # Workflow
 
 Write a blog push it to your master branch doing:  `./deploy.sh deploy`. This can be done if your in the source or master branch.
+Note that this will only update the master branch i.e your html site. Updating of source branch must be done manually, like this:
 
-Updated your source
+```shell
+git status
+git add .
+git commit -m "Updated source"
+git push origin source
+```
+
 
 
 # Extras
