@@ -18,8 +18,14 @@ stack build
 stack exec decarojBlog watch
 ```
 
+Write a post or modify the templates, refresh the browser. After verifyin deploy html to master branch
+doing `./deploy.sh deploy` and push the source.
+
+> Note: ./deploy.sh deploy can be run with the source branch checkedout
+
 #Commit to the source branch
 
+Check out the source branch and push from there.
 
 ```shell
 #Review changes
@@ -36,7 +42,9 @@ TODO
 ====
 
 - [ ] Polish the workflow so the source branch gets updated when changed, or at least notify.
+- [ ] Add another case to the deploy script so (./deploy.sh source) updates the source branch
 - [ ] Generate rss feed.
+- [ ] Add random art generator for banners.
 
 
 
