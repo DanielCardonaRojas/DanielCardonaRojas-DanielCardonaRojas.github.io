@@ -88,7 +88,6 @@ siteCtx :: Context String
 siteCtx = 
     constField "baseurl" "https://danielcardonarojas.github.io" `mappend` 
     constField "site_description" "My Programming Blog" `mappend`
-    constField "instagram_username" "" `mappend`
     constField "twitter_username" "CocolateCardona" `mappend`
     constField "github_username" "DanielCardonaRojas" `mappend`
     constField "google_username" "Daniel Cardona Rojas" `mappend`
