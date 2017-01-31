@@ -3,7 +3,7 @@ title: More fun with Associated Types
 date: 2016-08-11
 ---
 
-In this example will cover a basic example inspired from the haskell wiki but slightly different. Overloading type constructors is the core concept again. Will see this time how it will provide a means to abstract (overload) a common operation with collection like structures.
+In this example will cover a basic example inspired from the Haskell wiki but slightly different. Overloading type constructors is the core concept again. Will see this time how it will provide a means to abstract (overload) a common operation with collection like structures.
 
 We are all familiar with lists, arrays, vectors, dictionaries, maps etc. An array and a dictionary are really very similar, dictionaries on one hand are indexed by strings (more generally with EQ types) while arrays and lists get indexed by integers.
 

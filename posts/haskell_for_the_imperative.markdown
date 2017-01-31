@@ -3,8 +3,8 @@ title: Haskell for the imperative
 date: 2016-10-11
 ---
 
-In this post i would like to show how in funciontal languages like Haskell with support for higher 
-order functions and curring imperative like control structures can be me defined. But finally point out
+In this post i would like to show how in functional languages like Haskell with support for higher 
+order functions and currying imperative like control structures can be me defined. But finally point out
 how functional programming has other tooling different from the imperative versions, that makes us think 
 differently.
 
@@ -22,7 +22,7 @@ We can identify for parts in this control structures:
 
 - An initial value
 - Some predicate to decide continuing the loop
-- An updateing function in this case a simple increment.
+- An updating function in this case a simple increment.
 
 
 Lets model this in Haskell, with the above information, lets give "for" a type:
@@ -31,7 +31,7 @@ Lets model this in Haskell, with the above information, lets give "for" a type:
 for' :: a -> (a -> Bool) -> (a -> a) -> (a -> IO ()) -> IO ()
 ```
 
-for just returns an IO action that doesnt yeild any value, i.e a pure side effecting IO value.
+for just returns an IO action that doesn't yield any value, i.e a pure side effecting IO value.
 So lets try defining this function: 
 
 ```haskell
@@ -43,7 +43,7 @@ for' i p f code = if p i then code i >> for' (f i) p f code  else return ()
 
 A simple one liner, very cool.
 
-Lets try generalizing this for a bit more. Woulnt it be nice if the code inside the for loop could return a 
+Lets try generalizing this for a bit more. Wouldn't it be nice if the code inside the for loop could return a 
 value in each iteration and those values be collected as a final result ?
 
 Well we'll do just that:
@@ -101,14 +101,14 @@ monadic effect just by changing the type signature and no more.
 for :: Monad m => a -> (a -> Bool) -> (a -> a) -> (a -> m b) -> m [b]
 ```
 
-Similar functions can be acheived for "if" and "while" control structures and can be generalized too.
+Similar functions can be achieved for "if" and "while" control structures and can be generalized too.
 
 Modern languages have variations of the classical for loop which suits better in object oriented contexts, like "for each"
-or "for in ". In haskell we have map for pure computations, mapM. And some other variations.
+or "for in ". In Haskell we have map for pure computations, mapM. And some other variations.
 
 
 Although it is very interesting to see how easy it is to emulate for loops and other type of imperative
-structures, the definitions above would typically be written differently in a more declaritive and idiomatica way.
+structures, the definitions above would typically be written differently in a more declarative and idiomatic way.
 
 
 ```haskell
@@ -125,12 +125,12 @@ Describing the for loop in C (first snippet) would be something like this:
 
 `for` is a control structure that:
 1) Starts a loop variable with an initial value
-2) Checks if a condition holds using logical operators (if it doesnt exit/return)
+2) Checks if a condition holds using logical operators (if it doesn't exit/return)
 3) Executes some user defined code
 4) Modifies the loop variable (usually an increment)
 5) Repeats steps 2) and 3) until exit.
 
 Describing the Haskell version of the for loop might go something like this: 
 
-ffor is a function that collects the results of mapping a monadic function over a filtered list in wich the list
+ffor is a function that collects the results of mapping a monadic function over a filtered list in which the list
 is obtained by iterating a modifying function over an initial value.
