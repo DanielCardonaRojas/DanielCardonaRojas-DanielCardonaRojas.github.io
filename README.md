@@ -22,8 +22,13 @@ stack exec decarojBlog watch
 
 
 ```shell
-
-
+#Review changes
+git diff
+git add .
+#Or if just edited file al ready staged file
+git add -u
+git commit -m "updated source"
+git push origin source
 ```
 
 
