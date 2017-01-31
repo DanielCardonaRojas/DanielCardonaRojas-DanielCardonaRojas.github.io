@@ -158,16 +158,24 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
                 <div class="row">
                     <div class="col-lg-8 col-lg-offset-2">
                         <div class="modal-body">
-                            <h1 class="font-style-inline-small-h1">Lucas Gatsas</h1>
+                            <h1 class="font-style-inline-small-h1">Daniel Cardona Rojas</h1>
                             <hr class="star-primary">
                             <img src="../static/img/face.png" class="img-responsive img-centered" alt title>
                             <p class="font-style-inline-small">
+<<<<<<< HEAD
                                 Hello, my name is Daniel I am a sound Engineer from Colombia passionate about many things
                                  This is my Personal Notice and Archive Work Experience Work Blog.  <br>
                                 <a href="https://www.twitter.com/katychuang" target="_blank">follow me</a>. <br> 
                                 <a href="https://www.github.com/katychuang" target="_blank">    <i class="fa fa-github" id="spaceg-social-modal"></i> </a> 
                                 <a href="https://www.twitter.com/katychuang" target="_blank"><i class="fa fa-twitter" id="spaceg-social-modal"></i> </a>    
                                 <a href="https://plus.google.com/u/0/114379033449724089135" target="_blank"> <i class="fa fa-google-plus" id="spaceg-social-modal"></i></a> 
+=======
+                                Hi I'm Daniel Cardona, a sound engineer from Colombia passionate about technology and programming
+                                <a href="https://twitter.com/cocolatecardona" target="_blank">follow me</a>. <br> 
+                                <a href="https://www.github.com/DanielCardonaRojas" target="_blank">    <i class="fa fa-github" id="spaceg-social-modal"></i> </a> 
+                                <a href="https://www.twitter.com/cocolatecardona" target="_blank"><i class="fa fa-twitter" id="spaceg-social-modal"></i> </a>    
+                                <a href="https://plus.google.com/u/1/114379033449724089135" target="_blank"> <i class="fa fa-google-plus" id="spaceg-social-modal"></i></a> 
+>>>>>>> 0078181df20702bdab58d3fcbefc89a846277aa2
                             </p>
                             <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
                         </div>
@@ -236,7 +244,7 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
 
-			<p>In this post i would like to show how in funciontal languages like Haskell with support for higher order functions and curring imperative like control structures can be me defined. But finally point out how functional programming has other tooling different from the imperative versions, that makes us think differently.</p>
+			<p>In this post i would like to show how in functional languages like Haskell with support for higher order functions and currying imperative like control structures can be me defined. But finally point out how functional programming has other tooling different from the imperative versions, that makes us think differently.</p>
 <p>Lets try to construct a for loop just using functions. A simple for loop will almost look identical in any c like programming language.</p>
 <div class="sourceCode"><pre class="sourceCode c"><code class="sourceCode c"><span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; <span class="dv">9</span>; i++){
     <span class="co">//Do some side effecting operations</span>
@@ -245,17 +253,17 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
 <ul>
 <li>An initial value</li>
 <li>Some predicate to decide continuing the loop</li>
-<li>An updateing function in this case a simple increment.</li>
+<li>An updating function in this case a simple increment.</li>
 </ul>
 <p>Lets model this in Haskell, with the above information, lets give “for” a type:</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for' ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</code></pre></div>
-<p>for just returns an IO action that doesnt yeild any value, i.e a pure side effecting IO value. So lets try defining this function:</p>
+<p>for just returns an IO action that doesn’t yield any value, i.e a pure side effecting IO value. So lets try defining this function:</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
 <span class="ot">for' ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 for' i p f code <span class="fu">=</span> <span class="kw">if</span> p i <span class="kw">then</span> code i <span class="fu">&gt;&gt;</span> for' (f i) p f code  <span class="kw">else</span> return ()
             </code></pre></div>
 <p>A simple one liner, very cool.</p>
-<p>Lets try generalizing this for a bit more. Woulnt it be nice if the code inside the for loop could return a value in each iteration and those values be collected as a final result ?</p>
+<p>Lets try generalizing this for a bit more. Wouldn’t it be nice if the code inside the for loop could return a value in each iteration and those values be collected as a final result ?</p>
 <p>Well we’ll do just that:</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> [b]</code></pre></div>
 <p>The implementation is very easy as well:</p>
@@ -280,9 +288,9 @@ for i p f code <span class="fu">=</span>
 <p><strong>Generalizing to Monad</strong></p>
 <p>Finally we can go a step further to generalize this for not just to do IO but any other monadic effect just by changing the type signature and no more.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m [b]</code></pre></div>
-<p>Similar functions can be acheived for “if” and “while” control structures and can be generalized too.</p>
-<p>Modern languages have variations of the classical for loop which suits better in object oriented contexts, like “for each” or “for in”. In haskell we have map for pure computations, mapM. And some other variations.</p>
-<p>Although it is very interesting to see how easy it is to emulate for loops and other type of imperative structures, the definitions above would typically be written differently in a more declaritive and idiomatica way.</p>
+<p>Similar functions can be achieved for “if” and “while” control structures and can be generalized too.</p>
+<p>Modern languages have variations of the classical for loop which suits better in object oriented contexts, like “for each” or “for in”. In Haskell we have map for pure computations, mapM. And some other variations.</p>
+<p>Although it is very interesting to see how easy it is to emulate for loops and other type of imperative structures, the definitions above would typically be written differently in a more declarative and idiomatic way.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">ffor ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m [b]
 ffor i p m f <span class="fu">=</span> mapM f <span class="fu">$</span> filter p <span class="fu">$</span> iterate m i
 
@@ -290,9 +298,9 @@ ffor i p m f <span class="fu">=</span> mapM f <span class="fu">$</span> filter p
 ffor' i p m f <span class="fu">=</span> mapM_ f <span class="fu">$</span> filter p <span class="fu">$</span> iterate m i</code></pre></div>
 <p>Notice how reasoning about this definition is very different from the imperative version even though they do the same.</p>
 <p>Describing the for loop in C (first snippet) would be something like this:</p>
-<p><code>for</code> is a control structure that: 1) Starts a loop variable with an initial value 2) Checks if a condition holds using logical operators (if it doesnt exit/return) 3) Executes some user defined code 4) Modifies the loop variable (usually an increment) 5) Repeats steps 2) and 3) until exit.</p>
+<p><code>for</code> is a control structure that: 1) Starts a loop variable with an initial value 2) Checks if a condition holds using logical operators (if it doesn’t exit/return) 3) Executes some user defined code 4) Modifies the loop variable (usually an increment) 5) Repeats steps 2) and 3) until exit.</p>
 <p>Describing the Haskell version of the for loop might go something like this:</p>
-<p>ffor is a function that collects the results of mapping a monadic function over a filtered list in wich the list is obtained by iterating a modifying function over an initial value.</p>	
+<p>ffor is a function that collects the results of mapping a monadic function over a filtered list in which the list is obtained by iterating a modifying function over an initial value.</p>	
 
                 <hr>
 
@@ -356,20 +364,8 @@ ffor' i p m f <span class="fu">=</span> mapM_ f <span class="fu">$</span> filter
                         </a>
                     </li>
                     
-		    
-                    <li>
-                        <a href="https://instagram.com/" target="_blank">
-                            <span class="fa-stack fa-lg">
-
-                              <i class="fa fa-arrow-circle-o-down"></i>
-                                <i class="fa fa-circle fa-stack-2x"></i>
-                                <i class="fa fa-instagram fa-stack-1x fa-inverse"></i>
-                            </span>
-                        </a>
-                    </li>
-		    
                 </ul>
-                <p class="copyright text-muted">Copyright &copy; Daniel Cardona Rojas 2016. <br><br> 
+                <p class="copyright text-muted">Copyright &copy; Daniel Cardona Rojas 2017. <br><br> 
                 </p>
 <div class="col-md-12">
      <p class="copyright text-muted">
