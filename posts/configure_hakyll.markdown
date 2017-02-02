@@ -126,6 +126,8 @@ git commit -m "Updated source"
 git push origin source
 ```
 
+You can start writing a post and only update source until it ready for being published
+
 
 
 # Extras
