@@ -83,17 +83,15 @@ deploy() {
 
 #UPDATE SOURCE BRANCH
 
-update(){
-    commit_message=$1
+commit(){
+    commit_message="$1"
     #Review changes
     git status
     read -p "Do you want to commit all changes? [y/n] " -n 1 -r
     echo    # (optional) move to a new line
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
-        # do dangerous stuff
         echo "Preparing push to source branch"
-        #TODO: Get a variable message for commit
         git add .
         echo "Commiting with message $commit_message"
         git commit -m "$commit_message"
@@ -106,7 +104,7 @@ update(){
 
 function usage ()
 {
-    echo "Usage :  $0 [deploy | setup | update [-m <commit message>]]"
+    echo "Usage :  $0 [deploy | setup | commit [-m <commit message>]]"
 
 }    # ----------  end of function usage  ----------
 
@@ -123,7 +121,7 @@ case "$1" in
     deploy;;
 
   #UPDATE SOURCE CODE AND POSTS MARKDOWN
-  update )
+  commit )
 
         shift
         echo "updateing $1 ${opt}"
@@ -138,8 +136,7 @@ case "$1" in
         case ${opt} in
 
           m|message )  
-              echo "Commit message $OPTARG \n"
-              update $OPTARG
+              commit "$OPTARG"
               exit 0 ;;
 
           \? )
@@ -160,5 +157,5 @@ case "$1" in
         ;;
 
   * )
-    printf "USAGE: ./deploy.sh [deploy | setup | update -m <commit message>]\n";;
+    usage;;
 esac
