@@ -23,6 +23,7 @@ main = hakyll $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
+            >>= saveSnapshot "content"
             >>= loadAndApplyTemplate "templates/default.html" postCtx
             >>= relativizeUrls
 
@@ -57,21 +58,29 @@ main = hakyll $ do
 
     match "templates/*" $ compile templateCompiler
 
-{-
     -- TODO: use tags, postCtx a function from Tags to Context
     -- see: https://github.com/CBMM/CBMM.github.io/blob/hakyll/site.hs
-    create ["rss.xml"] $ do
+    createFeed "feed.xml" renderRss
+    createFeed "rss.xml" renderRss
+    createFeed "atom.xml" renderAtom
+
+  
+
+
+
+
+--------------------------------------------------------------------------------
+createFeed name renderingFunction =
+    create [name] $ do
         route idRoute
         compile $ do
             let feedCtx = postCtx `mappend` bodyField "description"
             posts <- fmap (take 10) . recentFirst =<<
-                loadAllSnapshots "posts/*" "feedcontent"
-            renderRss decarojFeedConfig feedCtx posts
--}
+                loadAllSnapshots "posts/*" "content"
+            renderingFunction blogFeedConfig feedCtx posts
 
---------------------------------------------------------------------------------
-decarojFeedConfig :: FeedConfiguration
-decarojFeedConfig = FeedConfiguration
+blogFeedConfig :: FeedConfiguration
+blogFeedConfig = FeedConfiguration
   { feedTitle = "Daniel Cardona"
   , feedDescription = "My own discoveries about software"
   , feedAuthorName = "Daniel Cardona"

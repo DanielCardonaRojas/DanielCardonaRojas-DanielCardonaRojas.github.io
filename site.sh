@@ -9,6 +9,9 @@ SITE="_site"
 # the dir for pushing to master branch
 DEPLOY_DIR="deploy/"
 
+# The name of the stack generated proyect, or more specifically the executable program name.
+PROYECT_NAME="decarojBlog"
+
 print_info() {
   printf "  \e[1;34m $1\e[0m\n"
 }
@@ -85,6 +88,7 @@ deploy() {
 
 commit(){
     commit_message="$1"
+    git checkout source
     #Review changes
     git status
     read -p "Do you want to commit all changes? [y/n] " -n 1 -r

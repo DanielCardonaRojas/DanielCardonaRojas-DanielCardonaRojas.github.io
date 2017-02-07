@@ -128,6 +128,10 @@ git push origin source
 
 You can start writing a post and only update source until it ready for being published
 
+#Fix Cache Problems
+
+You might get this message `(snapshot content) was not found in the cache` just erase "_cache" contents.
+
 
 
 # Extras
