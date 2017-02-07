@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Daniel Cardona</title>
+    <link href="https://danielcardonarojas.github.io/atom.xml" rel="self" />
+    <link href="https://danielcardonarojas.github.io" />
+    <id>https://danielcardonarojas.github.io/atom.xml</id>
+    <author>
+        <name>Daniel Cardona</name>
+        <email>d.cardona.rojas@gmail.com</email>
+    </author>
+    <updated>2017-02-01T00:00:00Z</updated>
+    <entry>
+    <title>Understanding Basics of Lenses</title>
+    <link href="https://danielcardonarojas.github.io/posts/lens_tutorial.html" />
+    <id>https://danielcardonarojas.github.io/posts/lens_tutorial.html</id>
+    <published>2017-02-01T00:00:00Z</published>
+    <updated>2017-02-01T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<!-- Post Header -->
+<header class="intro-header" style="background-image: url('https://danielcardonarojas.github.io/static/img/beach.jpg')" alt="" title="">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Understanding Basics of Lenses</h1>
+                    
+                    <span class="meta">
+		    
+			February  1, 2017
+		    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+			<p>Lenses is perhaps on of the toughest topics learning Haskell, even though they accomplish a very simple task, one that’s trivial in imperative languages. The reason for this is that for a purely functional programming language with immutability this is hard to get around.</p>
+<p>In this post I’ll try to skim the basics of what I’ve learned.</p>
+<p>The metaphor for lenses is that lenses can be stacked up (composed) like a microscope to see deeper into a structure. The nice this is that you can use a lens to either see down into the structure or modify it.</p>
+<p>So you might have heard a lens is a setter and a getter bundled up in a single thing. So given a set of setter and getter for some data type we should be able to construct a lens.</p>
+<p>The whole purpose of lenses is that they compose, so we can dig into a deeply nested structure and focus on that element, after which we will have to use some other utility functions to extract the setter and getter, and either update or just inspect the value.</p>
+<h2 id="derivation">Derivation</h2>
+<p>We’ll start defining the naive lens as is shown in other tutorials like (this)[]</p>
+<p><strong>TODO</strong></p>
+<h2 id="creating-a-lens-from-setter-and-getter">Creating a Lens from Setter and Getter</h2>
+<p>The derivation of the shape of the lense is kind of magic and I don’t fully understand how on would arrive at it. So I’ll just state it here and then show we can transform a lense into a setter getter and some other useful things.</p>
+<p>A lens is:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Lens&#39;</span> s a <span class="fu">=</span> forall f <span class="fu">.</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (a <span class="ot">-&gt;</span> f a) <span class="ot">-&gt;</span> (s <span class="ot">-&gt;</span> f s)</code></pre></div>
+<p>you can think of it as focusing on an “a” inside a structure “s”. Or something that give an “s” can focus on an “a”.</p>
+<p>So given a setter and a getter for some value inside <code>s</code> we can build a lens</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">createLens&#39; ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (s <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> s) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> f a) <span class="ot">-&gt;</span> (s <span class="ot">-&gt;</span> f s)
+createLens&#39; getter setter f s <span class="fu">=</span> fmap (setter s) <span class="fu">$</span> f (getter s)</code></pre></div>
+<p>So this can be thought of like this: <code>f (getter s)</code> just takes the value inside s and puts in some container (functor) <code>(setter s) :: a -&gt; s</code> is waiting for a new value to return an updated s, so fmapping it will yield a new s inside the functor. When analyzing these functions pay attention to what argument names bound to in the type signature.</p>
+<p>Note that <code>f :: (a -&gt; f a)</code> and is applied to <code>(getter s) :: a</code> yielding an <code>f a</code>, since <code>(setter s) :: a -&gt; s</code> it follows that <code>(setter s) &lt;$&gt; (getter s) :: f s</code></p>
+<h2 id="extracting-the-getter-view-.">Extracting the getter (view) (^.)</h2>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">view ::</span> <span class="dt">Lens&#39;</span> s a <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> a
+view l s <span class="fu">=</span> getConst <span class="fu">$</span> l <span class="dt">Const</span> s
+
+(<span class="fu">^.</span>) <span class="fu">=</span> flip view</code></pre></div>
+<h2 id="extracting-setter-over">Extracting Setter (over) (%~)</h2>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">over ::</span> <span class="dt">Lens&#39;</span> s a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> s
+over l f s <span class="fu">=</span> runIdentity <span class="fu">$</span> l (<span class="dt">Identity</span> <span class="fu">.</span> f) s</code></pre></div>
+<h2 id="defining-utilities">Defining Utilities</h2>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">(<span class="fu">&amp;</span>) <span class="fu">=</span> flip (<span class="fu">$</span>)
+toListOf l <span class="fu">=</span> getConst <span class="fu">.</span> l (\x <span class="ot">-&gt;</span> <span class="dt">Const</span> [x])</code></pre></div>
+<h2 id="further-reading">Further reading</h2>
+<p>Lenses work on product types but prism extend the idea to sum types.</p>	
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+<hr>
+]]></summary>
+</entry>
+<entry>
+    <title>Hakyll Configuration for Github Pages</title>
+    <link href="https://danielcardonarojas.github.io/posts/configure_hakyll.html" />
+    <id>https://danielcardonarojas.github.io/posts/configure_hakyll.html</id>
+    <published>2016-11-20T00:00:00Z</published>
+    <updated>2016-11-20T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<!-- Post Header -->
+<header class="intro-header" style="background-image: url('https://danielcardonarojas.github.io/static/img/beach.jpg')" alt="" title="">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Hakyll Configuration for Github Pages</h1>
+                    
+                    <span class="meta">
+		    
+			November 20, 2016
+		    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+			<p>It seems a bit hard to get Hakyll setup for github pages and like most other blogs made with Hakyll one of the first posts is about how to set it up.</p>
+<p>Working with hakyll is pretty easy. What is a little confusing is how to get git and github setup.</p>
+<p>The challange is to setup a remote repository in github with two independent branches, the master branch will containt all of your html generated files as well as javascripts, css and images. Another branch (in this case named source) will have the haskell source and templates for generating the html. So we’ll want to automate this with deployment script that will switch to the right branch, push the right content etc.</p>
+<p>There are many tutorials teaching how to get started and setup git the one that worked for me was <a href="http://jameslawson.github.io/posts/2015-02-23-hakyll-and-github-pages.html">this</a>, the first link below.</p>
+<ul>
+<li><a href="http://jameslawson.github.io/posts/2015-02-23-hakyll-and-github-pages.html">jameslawson</a></li>
+<li><a href="https://jaspervdj.be/hakyll/tutorials/github-pages-tutorial.html">Official tutorial</a></li>
+</ul>
+<h1 id="prerequisites">Prerequisites</h1>
+<p>Install stack</p>
+<h1 id="stack-setup">stack setup</h1>
+<p>With Hakyll there are two options (cabal and stack), in this tutorial I used a stack template instead.</p>
+<p>Getting started is really easy:</p>
+<pre class="shell"><code>stack new &lt;blogName&gt; hakyll-template</code></pre>
+<p>Build and get live automatically updated preview of your site:</p>
+<pre class="shell"><code>stack build 
+stack exec &lt;blogName&gt; watch</code></pre>
+<p>You can just regenerate all html by issuing:</p>
+<pre class="shell"><code>stack rebuild
+# Or 
+stack clean &amp;&amp; stack build</code></pre>
+<h1 id="design-your-blog">Design your blog</h1>
+<p>Write a post and get a hang of how things work in Hakyll, see how it gets render automatically with the <code>watch</code> command play with the frontmatter options.</p>
+<p>In this blog I used a template taken from: <a href="https://github.com/katychuang/hakyll-cssgarden">hakyll-cssgarden</a>. Clone and copy the templates, site.hs and static folder. I prefer its folder structure than the one the default template has.</p>
+<h1 id="gitgithub-setup">Git/Github setup</h1>
+<p>If your new to github pages like I was, to setup a github page youll have to create a repository with the following name:</p>
+<blockquote>
+<p>your_github_name.github.io</p>
+</blockquote>
+<p><strong>Setup SSH key</strong></p>
+<p>Setting up an ssh key is important so you dont get prompted with a user and password every time how push a commit.</p>
+<p>Follow <a href="https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/">this</a> guide to se the detailed process.</p>
+<p><strong>Create a .gitignore file </strong></p>
+<p>This should have something like this:</p>
+<div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml">.stack-work/
+site
+_site
+_cache
+deploy
+.DS_STORE
+.ghci</code></pre></div>
+<p><strong>Create the source branch</strong></p>
+<p>This is only done the first time. Create a source branch and do an initial commit:</p>
+<pre class="shell"><code>git init
+#git add the origin
+git remote add origin git@github.com:yourGithubName/yourGithubName.github.io.git
+#Create and switch to source branch
+git checkout -b source
+#Make sure that ignored files dont get tracked
+git status
+# If ok add all files.
+git add -A
+git commit -m &quot;First source commit&quot;
+git push origin source</code></pre>
+<h1 id="edit-the-deploy-script">Edit the deploy script</h1>
+<p>Copy the deploy.sh script from <a href="https://github.com/DanielCardonaRojas/DanielCardonaRojas.github.io/blob/source/deploy.sh">here</a> this is a slightly modified version of the script from the first tutorial listed above. I just modfied it to use the stack command instead of ghc.</p>
+<ol style="list-style-type: decimal">
+<li>Change <code>REMOTE=&quot;git@github.com:DanielCardonaRojas/DanielCardonaRojas.github.io.git&quot;</code> to match your own github page.</li>
+<li>Edit this line <code>stack exec decarojBlog rebuild</code> to match the name of your the stack genereted binary, which can be changed from the blogName.cabal</li>
+</ol>
+<p>After modifying the script do this the first time:</p>
+<pre class="shell"><code>chmod 700 deploy.sh
+./deploy setup</code></pre>
+<h1 id="workflow">Workflow</h1>
+<p>Write a blog push it to your master branch doing: <code>./deploy.sh deploy</code>. This can be done if your in the source or master branch. Note that this will only update the master branch i.e your html site. Updating of source branch must be done manually, like this:</p>
+<pre class="shell"><code>git status
+git add .
+git commit -m &quot;Updated source&quot;
+git push origin source</code></pre>
+<p>You can start writing a post and only update source until it ready for being published</p>
+<h1 id="fix-cache-problems">Fix Cache Problems</h1>
+<p>You might get this message <code>(snapshot content) was not found in the cache</code> just erase “_cache&quot; contents.</p>
+<h1 id="extras">Extras</h1>
+<p>Add an RSS feed. Add syntax highlighting.</p>	
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+<hr>
+]]></summary>
+</entry>
+<entry>
+    <title>Haskell for the imperative</title>
+    <link href="https://danielcardonarojas.github.io/posts/haskell_for_the_imperative.html" />
+    <id>https://danielcardonarojas.github.io/posts/haskell_for_the_imperative.html</id>
+    <published>2016-10-11T00:00:00Z</published>
+    <updated>2016-10-11T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<!-- Post Header -->
+<header class="intro-header" style="background-image: url('https://danielcardonarojas.github.io/static/img/beach.jpg')" alt="" title="">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Haskell for the imperative</h1>
+                    
+                    <span class="meta">
+		    
+			October 11, 2016
+		    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+			<p>In this post i would like to show how in functional languages like Haskell with support for higher order functions and currying imperative like control structures can be me defined. But finally point out how functional programming has other tooling different from the imperative versions, that makes us think differently.</p>
+<p>Lets try to construct a for loop just using functions. A simple for loop will almost look identical in any c like programming language.</p>
+<div class="sourceCode"><pre class="sourceCode c"><code class="sourceCode c"><span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; <span class="dv">9</span>; i++){
+    <span class="co">//Do some side effecting operations</span>
+}</code></pre></div>
+<p>We can identify for parts in this control structures:</p>
+<ul>
+<li>An initial value</li>
+<li>Some predicate to decide continuing the loop</li>
+<li>An updating function in this case a simple increment.</li>
+</ul>
+<p>Lets model this in Haskell, with the above information, lets give “for” a type:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for&#39; ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</code></pre></div>
+<p>for just returns an IO action that doesn’t yield any value, i.e a pure side effecting IO value. So lets try defining this function:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="ot">for&#39; ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+for&#39; i p f code <span class="fu">=</span> <span class="kw">if</span> p i <span class="kw">then</span> code i <span class="fu">&gt;&gt;</span> for&#39; (f i) p f code  <span class="kw">else</span> return ()
+            </code></pre></div>
+<p>A simple one liner, very cool.</p>
+<p>Lets try generalizing this for a bit more. Wouldn’t it be nice if the code inside the for loop could return a value in each iteration and those values be collected as a final result ?</p>
+<p>Well we’ll do just that:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> [b]</code></pre></div>
+<p>The implementation is very easy as well:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> [b]
+for i p f code <span class="fu">=</span> 
+    <span class="kw">case</span> p i <span class="kw">of</span> 
+        <span class="dt">True</span> <span class="ot">-&gt;</span> <span class="kw">do</span>
+            iterationResult <span class="ot">&lt;-</span> code i
+            rest <span class="ot">&lt;-</span> for (f i) p f code
+            return <span class="fu">$</span> iterationResult <span class="fu">:</span> rest
+        <span class="dt">False</span> <span class="ot">-&gt;</span> return []</code></pre></div>
+<p>Lets try using it to get a feel for it:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">example <span class="fu">=</span> for <span class="dv">1</span> (<span class="fu">&lt;</span> <span class="dv">3</span>) (<span class="fu">+</span> <span class="dv">1</span>) <span class="fu">$</span> 
+            \i <span class="ot">-&gt;</span> <span class="kw">do</span>
+                putStrLn <span class="fu">$</span> <span class="st">&quot;Iteration values is &quot;</span> <span class="fu">++</span> (show i)
+                return (i<span class="fu">*</span><span class="dv">3</span>) <span class="co">-- the value that will be collected </span></code></pre></div>
+<p><strong>Currying</strong></p>
+<p>Because of currying defining new utilities is very simple for example lets define a new control function that just repeats an action a number of times:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">repeatN n <span class="fu">=</span> for&#39; <span class="dv">0</span> (<span class="fu">&lt;</span> n) (<span class="fu">+</span> <span class="dv">1</span>) </code></pre></div>
+<p>Now we can use it trivially like this:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">example2 <span class="fu">=</span> repeatN <span class="dv">3</span> (\_ <span class="ot">-&gt;</span> putStrLn <span class="st">&quot;Hello&quot;</span>)</code></pre></div>
+<p><strong>Generalizing to Monad</strong></p>
+<p>Finally we can go a step further to generalize this for not just to do IO but any other monadic effect just by changing the type signature and no more.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m [b]</code></pre></div>
+<p>Similar functions can be achieved for “if” and “while” control structures and can be generalized too.</p>
+<p>Modern languages have variations of the classical for loop which suits better in object oriented contexts, like “for each” or “for in”. In Haskell we have map for pure computations, mapM. And some other variations.</p>
+<p>Although it is very interesting to see how easy it is to emulate for loops and other type of imperative structures, the definitions above would typically be written differently in a more declarative and idiomatic way.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">ffor ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m [b]
+ffor i p m f <span class="fu">=</span> mapM f <span class="fu">$</span> filter p <span class="fu">$</span> iterate m i
+
+<span class="ot">ffor&#39; ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m ()) <span class="ot">-&gt;</span> m ()
+ffor&#39; i p m f <span class="fu">=</span> mapM_ f <span class="fu">$</span> filter p <span class="fu">$</span> iterate m i</code></pre></div>
+<p>Notice how reasoning about this definition is very different from the imperative version even though they do the same.</p>
+<p>Describing the for loop in C (first snippet) would be something like this:</p>
+<p><code>for</code> is a control structure that: 1) Starts a loop variable with an initial value 2) Checks if a condition holds using logical operators (if it doesn’t exit/return) 3) Executes some user defined code 4) Modifies the loop variable (usually an increment) 5) Repeats steps 2) and 3) until exit.</p>
+<p>Describing the Haskell version of the for loop might go something like this:</p>
+<p>ffor is a function that collects the results of mapping a monadic function over a filtered list in which the list is obtained by iterating a modifying function over an initial value.</p>	
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+<hr>
+]]></summary>
+</entry>
+<entry>
+    <title>More fun with Associated Types</title>
+    <link href="https://danielcardonarojas.github.io/posts/generalized_maps.html" />
+    <id>https://danielcardonarojas.github.io/posts/generalized_maps.html</id>
+    <published>2016-08-11T00:00:00Z</published>
+    <updated>2016-08-11T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<!-- Post Header -->
+<header class="intro-header" style="background-image: url('https://danielcardonarojas.github.io/static/img/beach.jpg')" alt="" title="">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>More fun with Associated Types</h1>
+                    
+                    <span class="meta">
+		    
+			August 11, 2016
+		    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+			<p>In this example will cover a basic example inspired from the Haskell wiki but slightly different. Overloading type constructors is the core concept again. Will see this time how it will provide a means to abstract (overload) a common operation with collection like structures.</p>
+<p>We are all familiar with lists, arrays, vectors, dictionaries, maps etc. An array and a dictionary are really very similar, dictionaries on one hand are indexed by strings (more generally with EQ types) while arrays and lists get indexed by integers.</p>
+<p>What we would like to do is overload the common api for all these structures. Specifically <strong>getting</strong> an element, <strong>inserting</strong> an element and create an <strong>empty</strong> structure. In this example however I will only overload retrieving an element from the Collection like structure.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-#LANGUAGE TypeFamilies#-}</span>
+<span class="ot">{-#LANGUAGE FlexibleInstances#-}</span>
+<span class="ot">{-#LANGUAGE UndecidableInstances#-}</span>
+<span class="kw">import qualified</span> <span class="dt">Prelude</span>
+<span class="kw">import </span><span class="dt">Prelude</span> <span class="kw">hiding</span> (lookup)
+<span class="kw">import </span><span class="dt">Data.Matrix</span> <span class="kw">hiding</span> ((!))
+
+<span class="co">-- Some Helpers</span>
+<span class="ot">castToInt ::</span> (<span class="dt">RealFrac</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+castToInt <span class="fu">=</span> fromIntegral <span class="fu">.</span> round
+
+toInt<span class="ot"> ::</span> <span class="dt">Integral</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+toInt <span class="fu">=</span> fromIntegral</code></pre></div>
+<p>This is the typeclass that will permit overloading a lookup function.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">Mappable</span> k <span class="kw">where</span>
+    <span class="kw">type</span> <span class="dt">GMap</span> k<span class="ot"> v ::</span> <span class="fu">*</span>
+<span class="ot">    lookup ::</span> k <span class="ot">-&gt;</span> <span class="dt">GMap</span> k v <span class="ot">-&gt;</span> <span class="dt">Maybe</span> v</code></pre></div>
+<p>Now lets provide some instances. So when a key is an Int we should expect to be dealing with a list, but when the key is a string we think of a dictionary container. Even better what kind of structure do you think should be indexed by a tuple of integers? There might be more than one answer to this but i like to think its a matrix.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">--instance Integral k =&gt; Mappable k where</span>
+<span class="kw">instance</span> <span class="dt">Mappable</span> <span class="dt">Int</span> <span class="kw">where</span>
+    <span class="kw">type</span> <span class="dt">GMap</span> <span class="dt">Int</span> a <span class="fu">=</span> [a]
+    lookup k l <span class="fu">=</span> <span class="kw">if</span> k <span class="fu">&gt;=</span> length l <span class="kw">then</span> <span class="dt">Nothing</span> <span class="kw">else</span> <span class="dt">Just</span> <span class="fu">$</span> l <span class="fu">!!</span> (toInt k)
+
+<span class="co">--instance (Integral k, Integral j) =&gt; Mappable (k,j) where</span>
+<span class="kw">instance</span> <span class="dt">Mappable</span> (<span class="dt">Int</span>,<span class="dt">Int</span>) <span class="kw">where</span>
+    <span class="kw">type</span> <span class="dt">GMap</span> (<span class="dt">Int</span>,<span class="dt">Int</span>) a <span class="fu">=</span> <span class="dt">Matrix</span> a
+    lookup (x,y) <span class="fu">=</span> uncurry safeGet (x,y)
+
+<span class="kw">newtype</span> <span class="dt">Dict</span> k v <span class="fu">=</span> <span class="dt">Dict</span> {<span class="ot">fromDictionary ::</span> [(k,v)]} <span class="kw">deriving</span> (<span class="dt">Show</span>)
+
+<span class="kw">instance</span> <span class="dt">Mappable</span> <span class="dt">String</span> <span class="kw">where</span>
+    <span class="kw">type</span> <span class="dt">GMap</span> <span class="dt">String</span> v <span class="fu">=</span> <span class="dt">Dict</span> <span class="dt">String</span> v
+    lookup s <span class="fu">=</span> Prelude.lookup s <span class="fu">.</span> fromDictionary  
+            
+<span class="co">-- Its more handy to have a infix operator to index into structures</span>
+(<span class="fu">!</span>) <span class="fu">=</span> flip lookup</code></pre></div>
+<p>We can see how the type signature of the lookup function changes depending on the indexing type.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">(x,y) <span class="fu">=</span> (<span class="dv">2</span>,<span class="dv">3</span>)<span class="ot"> ::</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+lookup <span class="st">&quot;someKey&quot;</span><span class="ot"> ::</span> <span class="dt">Dict</span> <span class="dt">String</span> v <span class="ot">-&gt;</span> <span class="dt">Maybe</span> v
+lookup<span class="ot"> x ::</span> [v] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> v
+lookup (x,y)<span class="ot"> ::</span> <span class="dt">Matrix</span> v <span class="ot">-&gt;</span> <span class="dt">Maybe</span> v</code></pre></div>
+<p>Finally some examples:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">pos <span class="fu">=</span> (<span class="dv">2</span>,<span class="dv">3</span>)<span class="ot"> ::</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+ex1 <span class="fu">=</span> lookup pos <span class="fu">$</span> zero <span class="dv">5</span> <span class="dv">5</span>
+ex2 <span class="fu">=</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">4</span>] <span class="fu">!</span> (<span class="dv">3</span><span class="ot">::</span><span class="dt">Int</span>)</code></pre></div>	
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+<hr>
+]]></summary>
+</entry>
+<entry>
+    <title>Writing a rwst monad transformer</title>
+    <link href="https://danielcardonarojas.github.io/posts/rwst_monad.html" />
+    <id>https://danielcardonarojas.github.io/posts/rwst_monad.html</id>
+    <published>2016-07-05T00:00:00Z</published>
+    <updated>2016-07-05T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<!-- Post Header -->
+<header class="intro-header" style="background-image: url('https://danielcardonarojas.github.io/static/img/beach.jpg')" alt="" title="">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Writing a rwst monad transformer</h1>
+                    
+                    <span class="meta">
+		    
+			July  5, 2016
+		    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+			<h1 id="writing-a-monad-transformer">Writing a Monad Transformer</h1>
+<p>Typical examples of monads are Reader, Writer, Maybe, Either, State. Today I want to recap my part of my understanding of monads through the RWST monad. Also make it a monad transformer for the exercise.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="kw">import </span><span class="dt">Control.Monad.Trans</span> <span class="kw">hiding</span> (<span class="dt">RWST</span>)
+<span class="kw">import </span><span class="dt">Control.Monad.State.Class</span></code></pre></div>
+<p>This how you encode the rwst monad. It has to be a function that reads both a read only value r and some state s. The RWST provides the following functionality, read a configuration value, thread a mutable state value, and accumulate a monoidal value. Stating it in other words the RWST monad provides a computational context where one have state, have a read only configuration, acumulate a value.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">RWST</span> r w s m a <span class="fu">=</span> <span class="dt">RWST</span> {<span class="ot">runRWST ::</span> r <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m (a, s, w) }</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Monad</span> m, <span class="dt">Monoid</span> w) <span class="ot">=&gt;</span> <span class="dt">Monad</span> (<span class="dt">RWST</span> r w s m) <span class="kw">where</span>
+    return a <span class="fu">=</span> <span class="dt">RWST</span> <span class="fu">$</span> \r s <span class="ot">-&gt;</span> return (a,s,mempty) 
+    m <span class="fu">&gt;&gt;=</span> k <span class="fu">=</span>
+       <span class="dt">RWST</span> <span class="fu">$</span> \r s <span class="ot">-&gt;</span> <span class="kw">do</span>
+          (x, st, w) <span class="ot">&lt;-</span> (runRWST m) r s
+          (x&#39;, st&#39;,w&#39;) <span class="ot">&lt;-</span> (runRWST (k x)) r st
+          return (x&#39;, st&#39;, w <span class="ot">`mappend`</span> w&#39;)
+
+
+<span class="kw">instance</span> (<span class="dt">Monad</span> m, <span class="dt">Monoid</span> w) <span class="ot">=&gt;</span> <span class="dt">Applicative</span> (<span class="dt">RWST</span> r w s m) <span class="kw">where</span>
+    pure a <span class="fu">=</span> <span class="dt">RWST</span> <span class="fu">$</span> \r s <span class="ot">-&gt;</span> return (a,s,mempty)
+    (<span class="dt">RWST</span> mf) <span class="fu">&lt;*&gt;</span> (<span class="dt">RWST</span> v) <span class="fu">=</span> 
+     <span class="dt">RWST</span> <span class="fu">$</span> \r s <span class="ot">-&gt;</span> <span class="kw">do</span>
+         (f,st,w) <span class="ot">&lt;-</span> mf r s
+         (a, st&#39;,w&#39;) <span class="ot">&lt;-</span> v r st
+         return (f a, st&#39;, w <span class="ot">`mappend`</span> w&#39;)
+      </code></pre></div>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Functor</span> m, <span class="dt">Monoid</span> w) <span class="ot">=&gt;</span> <span class="dt">Functor</span> (<span class="dt">RWST</span> r w s m) <span class="kw">where</span>
+    fmap f (<span class="dt">RWST</span> v) <span class="fu">=</span> <span class="dt">RWST</span> <span class="fu">$</span> \r s <span class="ot">-&gt;</span> fmap (\(x,st,w) <span class="ot">-&gt;</span> (f x,st,w)) (v r s) </code></pre></div>
+<p>MonadTrans typeclass is used for defining how a monad transformer talks to its inner monad. Or how the inner monad gets lifted into the context a the wrapper monad.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Monoid</span> w) <span class="ot">=&gt;</span> <span class="dt">MonadTrans</span> (<span class="dt">RWST</span> r w s) <span class="kw">where</span>
+    lift m <span class="fu">=</span> <span class="dt">RWST</span> <span class="fu">$</span> \r s <span class="ot">-&gt;</span> <span class="kw">do</span>
+        a <span class="ot">&lt;-</span> m
+        return <span class="fu">$</span> (a,s,mempty)
+
+
+<span class="kw">instance</span> (<span class="dt">Monoid</span> w, <span class="dt">MonadIO</span> m) <span class="ot">=&gt;</span> <span class="dt">MonadIO</span> (<span class="dt">RWST</span> r w s m) <span class="kw">where</span>
+    liftIO <span class="fu">=</span> lift <span class="fu">.</span> liftIO </code></pre></div>	
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+<hr>
+]]></summary>
+</entry>
+
+</feed>

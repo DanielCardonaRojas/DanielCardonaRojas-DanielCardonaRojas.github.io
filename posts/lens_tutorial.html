@@ -231,11 +231,11 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="post-heading">
-                    <h1>Haskell for the imperative</h1>
+                    <h1>Understanding Basics of Lenses</h1>
                     
                     <span class="meta">
 		    
-			October 11, 2016
+			February  1, 2017
 		    </span>
                 </div>
             </div>
@@ -249,63 +249,37 @@ if (window.navigator.appName == "Microsoft Internet Explorer") {
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
 
-			<p>In this post i would like to show how in functional languages like Haskell with support for higher order functions and currying imperative like control structures can be me defined. But finally point out how functional programming has other tooling different from the imperative versions, that makes us think differently.</p>
-<p>Lets try to construct a for loop just using functions. A simple for loop will almost look identical in any c like programming language.</p>
-<div class="sourceCode"><pre class="sourceCode c"><code class="sourceCode c"><span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; <span class="dv">9</span>; i++){
-    <span class="co">//Do some side effecting operations</span>
-}</code></pre></div>
-<p>We can identify for parts in this control structures:</p>
-<ul>
-<li>An initial value</li>
-<li>Some predicate to decide continuing the loop</li>
-<li>An updating function in this case a simple increment.</li>
-</ul>
-<p>Lets model this in Haskell, with the above information, lets give “for” a type:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for' ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</code></pre></div>
-<p>for just returns an IO action that doesn’t yield any value, i.e a pure side effecting IO value. So lets try defining this function:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
-<span class="ot">for' ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-for' i p f code <span class="fu">=</span> <span class="kw">if</span> p i <span class="kw">then</span> code i <span class="fu">&gt;&gt;</span> for' (f i) p f code  <span class="kw">else</span> return ()
-            </code></pre></div>
-<p>A simple one liner, very cool.</p>
-<p>Lets try generalizing this for a bit more. Wouldn’t it be nice if the code inside the for loop could return a value in each iteration and those values be collected as a final result ?</p>
-<p>Well we’ll do just that:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> [b]</code></pre></div>
-<p>The implementation is very easy as well:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> [b]
-for i p f code <span class="fu">=</span> 
-    <span class="kw">case</span> p i <span class="kw">of</span> 
-        <span class="dt">True</span> <span class="ot">-&gt;</span> <span class="kw">do</span>
-            iterationResult <span class="ot">&lt;-</span> code i
-            rest <span class="ot">&lt;-</span> for (f i) p f code
-            return <span class="fu">$</span> iterationResult <span class="fu">:</span> rest
-        <span class="dt">False</span> <span class="ot">-&gt;</span> return []</code></pre></div>
-<p>Lets try using it to get a feel for it:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">example <span class="fu">=</span> for <span class="dv">1</span> (<span class="fu">&lt;</span> <span class="dv">3</span>) (<span class="fu">+</span> <span class="dv">1</span>) <span class="fu">$</span> 
-            \i <span class="ot">-&gt;</span> <span class="kw">do</span>
-                putStrLn <span class="fu">$</span> <span class="st">&quot;Iteration values is &quot;</span> <span class="fu">++</span> (show i)
-                return (i<span class="fu">*</span><span class="dv">3</span>) <span class="co">-- the value that will be collected </span></code></pre></div>
-<p><strong>Currying</strong></p>
-<p>Because of currying defining new utilities is very simple for example lets define a new control function that just repeats an action a number of times:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">repeatN n <span class="fu">=</span> for' <span class="dv">0</span> (<span class="fu">&lt;</span> n) (<span class="fu">+</span> <span class="dv">1</span>) </code></pre></div>
-<p>Now we can use it trivially like this:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">example2 <span class="fu">=</span> repeatN <span class="dv">3</span> (\_ <span class="ot">-&gt;</span> putStrLn <span class="st">&quot;Hello&quot;</span>)</code></pre></div>
-<p><strong>Generalizing to Monad</strong></p>
-<p>Finally we can go a step further to generalize this for not just to do IO but any other monadic effect just by changing the type signature and no more.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">for ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m [b]</code></pre></div>
-<p>Similar functions can be achieved for “if” and “while” control structures and can be generalized too.</p>
-<p>Modern languages have variations of the classical for loop which suits better in object oriented contexts, like “for each” or “for in”. In Haskell we have map for pure computations, mapM. And some other variations.</p>
-<p>Although it is very interesting to see how easy it is to emulate for loops and other type of imperative structures, the definitions above would typically be written differently in a more declarative and idiomatic way.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">ffor ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m [b]
-ffor i p m f <span class="fu">=</span> mapM f <span class="fu">$</span> filter p <span class="fu">$</span> iterate m i
+			<p>Lenses is perhaps on of the toughest topics learning Haskell, even though they accomplish a very simple task, one that’s trivial in imperative languages. The reason for this is that for a purely functional programming language with immutability this is hard to get around.</p>
+<p>In this post I’ll try to skim the basics of what I’ve learned.</p>
+<p>The metaphor for lenses is that lenses can be stacked up (composed) like a microscope to see deeper into a structure. The nice this is that you can use a lens to either see down into the structure or modify it.</p>
+<p>So you might have heard a lens is a setter and a getter bundled up in a single thing. So given a set of setter and getter for some data type we should be able to construct a lens.</p>
+<p>The whole purpose of lenses is that they compose, so we can dig into a deeply nested structure and focus on that element, after which we will have to use some other utility functions to extract the setter and getter, and either update or just inspect the value.</p>
+<h2 id="derivation">Derivation</h2>
+<p>We’ll start defining the naive lens as is shown in other tutorials like (this)[]</p>
+<p><strong>TODO</strong></p>
+<h2 id="creating-a-lens-from-setter-and-getter">Creating a Lens from Setter and Getter</h2>
+<p>The derivation of the shape of the lense is kind of magic and I don’t fully understand how on would arrive at it. So I’ll just state it here and then show we can transform a lense into a setter getter and some other useful things.</p>
+<p>A lens is:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Lens'</span> s a <span class="fu">=</span> forall f <span class="fu">.</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (a <span class="ot">-&gt;</span> f a) <span class="ot">-&gt;</span> (s <span class="ot">-&gt;</span> f s)</code></pre></div>
+<p>you can think of it as focusing on an “a” inside a structure “s”. Or something that give an “s” can focus on an “a”.</p>
+<p>So given a setter and a getter for some value inside <code>s</code> we can build a lens</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">createLens' ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (s <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> s) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> f a) <span class="ot">-&gt;</span> (s <span class="ot">-&gt;</span> f s)
+createLens' getter setter f s <span class="fu">=</span> fmap (setter s) <span class="fu">$</span> f (getter s)</code></pre></div>
+<p>So this can be thought of like this: <code>f (getter s)</code> just takes the value inside s and puts in some container (functor) <code>(setter s) :: a -&gt; s</code> is waiting for a new value to return an updated s, so fmapping it will yield a new s inside the functor. When analyzing these functions pay attention to what argument names bound to in the type signature.</p>
+<p>Note that <code>f :: (a -&gt; f a)</code> and is applied to <code>(getter s) :: a</code> yielding an <code>f a</code>, since <code>(setter s) :: a -&gt; s</code> it follows that <code>(setter s) &lt;$&gt; (getter s) :: f s</code></p>
+<h2 id="extracting-the-getter-view-.">Extracting the getter (view) (^.)</h2>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">view ::</span> <span class="dt">Lens'</span> s a <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> a
+view l s <span class="fu">=</span> getConst <span class="fu">$</span> l <span class="dt">Const</span> s
 
-<span class="ot">ffor' ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m ()) <span class="ot">-&gt;</span> m ()
-ffor' i p m f <span class="fu">=</span> mapM_ f <span class="fu">$</span> filter p <span class="fu">$</span> iterate m i</code></pre></div>
-<p>Notice how reasoning about this definition is very different from the imperative version even though they do the same.</p>
-<p>Describing the for loop in C (first snippet) would be something like this:</p>
-<p><code>for</code> is a control structure that: 1) Starts a loop variable with an initial value 2) Checks if a condition holds using logical operators (if it doesn’t exit/return) 3) Executes some user defined code 4) Modifies the loop variable (usually an increment) 5) Repeats steps 2) and 3) until exit.</p>
-<p>Describing the Haskell version of the for loop might go something like this:</p>
-<p>ffor is a function that collects the results of mapping a monadic function over a filtered list in which the list is obtained by iterating a modifying function over an initial value.</p>	
+(<span class="fu">^.</span>) <span class="fu">=</span> flip view</code></pre></div>
+<h2 id="extracting-setter-over">Extracting Setter (over) (%~)</h2>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">over ::</span> <span class="dt">Lens'</span> s a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> s
+over l f s <span class="fu">=</span> runIdentity <span class="fu">$</span> l (<span class="dt">Identity</span> <span class="fu">.</span> f) s</code></pre></div>
+<h2 id="defining-utilities">Defining Utilities</h2>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">(<span class="fu">&amp;</span>) <span class="fu">=</span> flip (<span class="fu">$</span>)
+toListOf l <span class="fu">=</span> getConst <span class="fu">.</span> l (\x <span class="ot">-&gt;</span> <span class="dt">Const</span> [x])</code></pre></div>
+<h2 id="further-reading">Further reading</h2>
+<p>Lenses work on product types but prism extend the idea to sum types.</p>	
 
                 <hr>
 
